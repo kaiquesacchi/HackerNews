@@ -5,26 +5,6 @@ import { AUTH_TOKEN, LINKS_PER_PAGE } from "../constants";
 import { timeDifferenceForDate } from "../utils/dateTime";
 import { FEED_QUERY, iFeedQuery } from "./LinkList";
 
-interface iProps {
-  link: {
-    id: number;
-    description: string;
-    url: string;
-    votes: {
-      id: number;
-      user: {
-        id: number;
-      };
-    }[];
-    postedBy?: {
-      id: number;
-      name: string;
-    };
-    createdAt: Date;
-  };
-  index: number;
-}
-
 const VOTE_MUTATION = gql`
   mutation VoteMutation($linkId: ID!) {
     vote(linkId: $linkId) {
@@ -45,19 +25,39 @@ const VOTE_MUTATION = gql`
   }
 `;
 
+interface iProps {
+  link: {
+    id: number;
+    description: string;
+    url: string;
+    votes: {
+      id: number;
+      user: {
+        id: number;
+      };
+    }[];
+    postedBy?: {
+      id: number;
+      name: string;
+    };
+    createdAt: Date;
+  };
+  index: number;
+}
+
 export default function Link({ link, index }: iProps) {
   const authToken = localStorage.getItem(AUTH_TOKEN);
   const history = useHistory();
+
+  const take = LINKS_PER_PAGE;
+  const skip = 0;
+  const orderBy = { createdAt: "desc" };
 
   const [vote] = useMutation(VOTE_MUTATION, {
     variables: {
       linkId: link.id,
     },
     update: (cache, { data: { post } }) => {
-      const take = LINKS_PER_PAGE;
-      const skip = 0;
-      const orderBy = { createdAt: "desc" };
-
       const data = cache.readQuery<iFeedQuery>({
         query: FEED_QUERY,
         variables: {
@@ -66,12 +66,24 @@ export default function Link({ link, index }: iProps) {
           orderBy,
         },
       });
+
       if (data === null) return;
+
+      const updatedLinks = data.feed.links.map((feedLink) => {
+        if (feedLink.id === link.id) {
+          return {
+            ...feedLink,
+            votes: [...feedLink.votes, vote],
+          };
+        }
+        return feedLink;
+      });
+
       cache.writeQuery({
         query: FEED_QUERY,
         data: {
           feed: {
-            links: [post, ...data.feed.links],
+            links: updatedLinks,
           },
         },
         variables: {
