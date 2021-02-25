@@ -14,6 +14,10 @@ const Header = () => {
         <a href="/" className="ml1 no-underline black">
           Home
         </a>
+        <div className="ml1">| </div>
+        <a href="/search" className="ml1 no-underline black">
+          Search
+        </a>
 
         {authToken && (
           <>
