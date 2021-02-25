@@ -2,7 +2,7 @@ import React from "react";
 import Link from "./Link";
 import { useQuery, gql } from "@apollo/client";
 
-const FEED_QUERY = gql`
+export const FEED_QUERY = gql`
   {
     feed {
       id
@@ -11,12 +11,22 @@ const FEED_QUERY = gql`
         createdAt
         url
         description
+        postedBy {
+          id
+          name
+        }
+        votes {
+          id
+          user {
+            id
+          }
+        }
       }
     }
   }
 `;
 
-interface iFeed {
+export interface iFeedQuery {
   feed: {
     id: number;
     links: {
@@ -24,12 +34,22 @@ interface iFeed {
       createdAt: Date;
       url: string;
       description: string;
+      postedBy?: {
+        id: number;
+        name: string;
+      };
+      votes: {
+        id: number;
+        user: {
+          id: number;
+        };
+      }[];
     }[];
   };
 }
 
 export default function LinkList() {
-  const { data } = useQuery<iFeed>(FEED_QUERY);
+  const { data } = useQuery<iFeedQuery>(FEED_QUERY);
 
-  return <div>{data && data.feed.links.map((link) => <Link key={link.id} link={link} />)}</div>;
+  return <div>{data && data.feed.links.map((link, index) => <Link key={link.id} link={link} index={index} />)}</div>;
 }
