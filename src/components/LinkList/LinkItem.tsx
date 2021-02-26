@@ -6,6 +6,8 @@ import { iData, iLink } from "./LinkList";
 import { FEED_QUERY } from "../../pages/new/[page]";
 import { useRouter } from "next/router";
 
+import * as SC from "./linkItem.styles";
+
 const VOTE_MUTATION = gql`
   mutation VoteMutation($linkId: ID!) {
     vote(linkId: $linkId) {
@@ -87,16 +89,16 @@ export default function Link({ link, index }: iProps) {
   });
 
   return (
-    <div className="flex mt2 items-start">
-      <div className="flex items-center">
-        <span className="gray">{index + 1}.</span>
+    <SC.Container>
+      <SC.LeftDiv>
+        <span>{index + 1}.</span>
         {authToken && (
-          <div className="ml1 gray f11" style={{ cursor: "pointer" }} onClick={() => vote()}>
+          <div style={{ cursor: "pointer" }} onClick={() => vote()}>
             ▲
           </div>
         )}
-      </div>
-      <div className="ml1">
+      </SC.LeftDiv>
+      <SC.RightDiv>
         <div>
           {link.description} ({link.url})
         </div>
@@ -106,7 +108,7 @@ export default function Link({ link, index }: iProps) {
             {timeDifferenceForDate(link.createdAt)}
           </div>
         )}
-      </div>
-    </div>
+      </SC.RightDiv>
+    </SC.Container>
   );
 }
