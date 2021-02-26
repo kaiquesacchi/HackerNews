@@ -21,6 +21,7 @@ export interface iLink {
 
 export interface iData {
   feed: {
+    __typename: string;
     id: number;
     links: iLink[];
     count: number;
@@ -29,7 +30,7 @@ export interface iData {
 
 interface iProps {
   data: iData;
-  page: number;
+  page?: number;
 }
 
 export default function LinkList({ data, page }: iProps) {

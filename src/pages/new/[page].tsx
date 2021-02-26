@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
 import { LinkList, iData } from "../../components/LinkList";
+import { iLink } from "../../components/LinkList/LinkList";
 
 import { LINKS_PER_PAGE } from "../../constants";
 
@@ -32,6 +33,58 @@ export const FEED_QUERY = gql`
   }
 `;
 
+interface iNewLink {
+  newLink: iLink;
+}
+
+const NEW_LINKS_SUBSCRIPTION = gql`
+  subscription {
+    newLink {
+      id
+      url
+      description
+      createdAt
+      postedBy {
+        id
+        name
+      }
+      votes {
+        id
+        user {
+          id
+        }
+      }
+    }
+  }
+`;
+
+const NEW_VOTES_SUBSCRIPTION = gql`
+  subscription {
+    newVote {
+      id
+      link {
+        id
+        url
+        description
+        createdAt
+        postedBy {
+          id
+          name
+        }
+        votes {
+          id
+          user {
+            id
+          }
+        }
+      }
+      user {
+        id
+      }
+    }
+  }
+`;
+
 export default function Home() {
   const router = useRouter();
   const [page, setPage] = useState(1);
@@ -48,6 +101,26 @@ export default function Home() {
       take: LINKS_PER_PAGE,
       orderBy: { createdAt: "desc" },
     },
+  });
+  subscribeToMore<iNewLink>({
+    document: NEW_LINKS_SUBSCRIPTION,
+    updateQuery: (prev, { subscriptionData }) => {
+      if (!subscriptionData.data) return prev;
+      const newLink = subscriptionData.data.newLink;
+      const exists = prev.feed.links.find(({ id }: { id: any }) => id === newLink.id);
+      if (exists) return prev;
+
+      return Object.assign({}, prev, {
+        feed: {
+          links: [newLink, ...prev.feed.links],
+          count: prev.feed.links.length + 1,
+          __typename: prev.feed.__typename,
+        },
+      });
+    },
+  });
+  subscribeToMore({
+    document: NEW_VOTES_SUBSCRIPTION,
   });
 
   return (
