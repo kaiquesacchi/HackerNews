@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 import { useMutation, gql } from "@apollo/client";
-import { useHistory } from "react-router-dom";
+import { useRouter } from "next/router";
+
+import * as SC from "../styles/create.styles";
+import Header from "../components/Header";
+import { VerticalArea } from "../styles/auth.styles";
 
 const CREATE_LINK_MUTATION = gql`
   mutation PostMutation($description: String!, $url: String!) {
@@ -12,9 +16,8 @@ const CREATE_LINK_MUTATION = gql`
     }
   }
 `;
-
-export default function CreateLink() {
-  const history = useHistory();
+export default function Auth() {
+  const router = useRouter();
   const [formState, setFormState] = useState({
     description: "",
     url: "",
@@ -25,19 +28,19 @@ export default function CreateLink() {
       description: formState.description,
       url: formState.url,
     },
-    onCompleted: () => history.replace("/"),
+    onCompleted: () => router.replace("/new/1"),
   });
 
   return (
-    <div>
+    <SC.Container>
+      <Header />
       <form
         onSubmit={(e) => {
           e.preventDefault();
           createLink();
         }}>
-        <div className="flex flex-column mt3">
-          <input
-            className="mb2"
+        <VerticalArea className="flex flex-column mt3">
+          <SC.Input
             value={formState.description}
             onChange={(e) =>
               setFormState({
@@ -48,8 +51,7 @@ export default function CreateLink() {
             type="text"
             placeholder="A description for the link"
           />
-          <input
-            className="mb2"
+          <SC.Input
             value={formState.url}
             onChange={(e) =>
               setFormState({
@@ -60,9 +62,9 @@ export default function CreateLink() {
             type="text"
             placeholder="The URL for the link"
           />
-        </div>
-        <button type="submit">Submit</button>
+          <SC.Button type="submit">Submit</SC.Button>
+        </VerticalArea>
       </form>
-    </div>
+    </SC.Container>
   );
 }
