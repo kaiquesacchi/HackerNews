@@ -16,7 +16,7 @@ export default function Header() {
   const logout = () => {
     localStorage.removeItem(AUTH_TOKEN);
     setIsAuthenticated(false);
-    router.replace(`/`);
+    router.replace("/new/1");
   };
 
   return (
@@ -24,7 +24,7 @@ export default function Header() {
       <SC.Links>
         <SC.Title>Hacker News</SC.Title>
 
-        <Link href="/">
+        <Link href="/new/1">
           <a className="ml1 no-underline black">Home</a>
         </Link>
         <SC.Divisor>|</SC.Divisor>

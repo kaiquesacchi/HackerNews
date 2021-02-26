@@ -1,8 +1,11 @@
 import React, { useState } from "react";
-import { useHistory } from "react-router";
 
 import { useMutation, gql } from "@apollo/client";
 import { AUTH_TOKEN } from "../constants";
+import { useRouter } from "next/router";
+
+import * as SC from "../styles/auth.styles";
+import Header from "../components/Header";
 
 const SIGNUP_MUTATION = gql`
   mutation SignupMutation($email: String!, $password: String!, $name: String!) {
@@ -20,8 +23,8 @@ const LOGIN_MUTATION = gql`
   }
 `;
 
-const Login = () => {
-  const history = useHistory();
+export default function Auth() {
+  const router = useRouter();
   const [formState, setFormState] = useState({
     login: true,
     email: "",
@@ -36,7 +39,7 @@ const Login = () => {
     },
     onCompleted: ({ login }) => {
       localStorage.setItem(AUTH_TOKEN, login.token);
-      history.push("/");
+      router.replace("/new/1");
     },
   });
 
@@ -48,16 +51,17 @@ const Login = () => {
     },
     onCompleted: ({ signup }) => {
       localStorage.setItem(AUTH_TOKEN, signup.token);
-      history.push("/");
+      router.replace("/new/1");
     },
   });
 
   return (
-    <div>
-      <h4 className="mv3">{formState.login ? "Login" : "Sign Up"}</h4>
-      <div className="flex flex-column">
+    <SC.Container>
+      <Header />
+      <SC.Title>{formState.login ? "Login" : "Sign Up"}</SC.Title>
+      <SC.VerticalArea>
         {!formState.login && (
-          <input
+          <SC.Input
             value={formState.name}
             onChange={(e) =>
               setFormState({
@@ -69,7 +73,7 @@ const Login = () => {
             placeholder="Your name"
           />
         )}
-        <input
+        <SC.Input
           value={formState.email}
           onChange={(e) =>
             setFormState({
@@ -80,7 +84,7 @@ const Login = () => {
           type="text"
           placeholder="Your email address"
         />
-        <input
+        <SC.Input
           value={formState.password}
           onChange={(e) =>
             setFormState({
@@ -91,13 +95,12 @@ const Login = () => {
           type="password"
           placeholder="Choose a safe password"
         />
-      </div>
-      <div className="flex mt3">
-        <button className="pointer mr2 button" onClick={() => (formState.login ? login() : signup())}>
+      </SC.VerticalArea>
+      <SC.VerticalArea>
+        <SC.Button onClick={() => (formState.login ? login() : signup())}>
           {formState.login ? "login" : "create account"}
-        </button>
-        <button
-          className="pointer button"
+        </SC.Button>
+        <SC.Button
           onClick={(e) =>
             setFormState({
               ...formState,
@@ -105,10 +108,8 @@ const Login = () => {
             })
           }>
           {formState.login ? "need to create an account?" : "already have an account?"}
-        </button>
-      </div>
-    </div>
+        </SC.Button>
+      </SC.VerticalArea>
+    </SC.Container>
   );
-};
-
-export default Login;
+}
